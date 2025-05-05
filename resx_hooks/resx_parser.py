@@ -18,7 +18,7 @@ def parse_resx_file(file_path: str) -> ResxData:
     tree = ET.parse(file_path)
     root = tree.getroot()
 
-    result = {}
+    result: ResxData = {}
     for data_node in root.findall(".//data"):
         name = data_node.attrib.get("name")
         if name:
@@ -86,7 +86,7 @@ def find_empty_values(data: ResxData) -> List[str]:
     Returns:
         List of keys with empty values
     """
-    empty_keys = []
+    empty_keys: List[str] = []
     for key, value in data.items():
         if not value or value.isspace():
             empty_keys.append(key)
