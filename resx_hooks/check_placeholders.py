@@ -1,66 +1,48 @@
 import sys
-import argparse
-import re
-from typing import Optional, Sequence, List, Dict, Set
+from typing import Optional, Sequence, List, Dict, Set, TypedDict
 
-from .common import expand_wildcards, get_all_resx_files, filter_resx_files
-from .resx_parser import parse_resx_file, find_missing_keys
+from .common import parse_cli_args, parse_resx_files
+from .resx_parser import find_missing_keys, find_placeholders, ResxData
 
 
-def find_placeholders(text: str) -> Set[str]:
-    """
-    Extract placeholders from a string.
-    Detects both {0} style and %s style placeholders.
+class PlaceholderIssue(TypedDict):
+    """Represents the expected vs found placeholders for a single key."""
+    expected: List[str]
+    found: List[str]
 
-    Args:
-        text: String to extract placeholders from
 
-    Returns:
-        Set of placeholders found in the string
-    """
-    braced_placeholders = set(re.findall(r'\{(\d+)(?::[^}]*)?\}', text))
-    percent_placeholders = set(re.findall(r'%([sdioxXeEfFgGcrs])', text))
-
-    return braced_placeholders.union(percent_placeholders)
+FileInconsistencies = Dict[str, PlaceholderIssue]
 
 
 def check_placeholder_consistency(
-        resx_files: List[str]) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
+        parsed_files: Dict[str, ResxData]
+) -> Dict[str, FileInconsistencies]:
     """
     Check if placeholders are consistent across all translations for each key.
 
     Args:
-        resx_files: List of paths to .resx files
+        parsed_files: Dictionary mapping file paths to their parsed data.
 
     Returns:
         Dictionary mapping file paths to dictionaries mapping keys to
-        inconsistent placeholders
+        inconsistent placeholders.
     """
-    missing_keys_map = find_missing_keys(resx_files)
-    if missing_keys_map:
-        print(
-            "Warning: Files have inconsistent keys. "
-            "Placeholder consistency check may not be exhaustive.")
+    reference_file_path = next(iter(parsed_files.keys()))
 
-    file_data = {}
-    for file_path in resx_files:
-        file_data[file_path] = parse_resx_file(file_path)
+    key_placeholders: Dict[str, Dict[str, Set[str]]] = {}
 
-    key_placeholders = {}
-    reference_file = resx_files[0]
-
-    for key in file_data[reference_file].keys():
+    for key in parsed_files[reference_file_path].keys():
         key_placeholders[key] = {}
-        for file_path in resx_files:
-            if key in file_data[file_path]:
-                value = file_data[file_path][key]
+        for file_path, data in parsed_files.items():
+            if key in data:
+                value = data[key]
                 placeholders = find_placeholders(value)
                 key_placeholders[key][file_path] = placeholders
 
-    inconsistencies = {}
-    for key, file_placeholders in key_placeholders.items():
-        reference_placeholders = next(iter(file_placeholders.values()))
-        for file_path, placeholders in file_placeholders.items():
+    inconsistencies: Dict[str, FileInconsistencies] = {}
+    for key, file_placeholders_map in key_placeholders.items():
+        reference_placeholders = next(iter(file_placeholders_map.values()))
+        for file_path, placeholders in file_placeholders_map.items():
             if placeholders != reference_placeholders:
                 if file_path not in inconsistencies:
                     inconsistencies[file_path] = {}
@@ -74,25 +56,21 @@ def check_placeholder_consistency(
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'filenames', nargs='*', help='Filenames or wildcard patterns to check')
-    args = parser.parse_args(argv)
+    args = parse_cli_args(argv)
+    parsed_files = parse_resx_files(args)
 
-    if args.filenames:
-        expanded_files = expand_wildcards(args.filenames)
-        resx_files = filter_resx_files(expanded_files)
-    else:
-        resx_files = get_all_resx_files()
-
-    if not resx_files:
-        print("No .resx files found to check.")
+    if len(parsed_files) <= 1:
         return 0
 
-    if len(resx_files) <= 1:
-        return 0
+    if find_missing_keys(parsed_files):
+        print(
+            "Warning: Files have inconsistent keys. "
+            "Placeholder consistency check may not be exhaustive.",
+            file=sys.stderr
+        )
 
-    inconsistencies = check_placeholder_consistency(resx_files)
+    inconsistencies = check_placeholder_consistency(parsed_files)
+
     if inconsistencies:
         for file_path, file_issues in inconsistencies.items():
             print(f"Inconsistent placeholders in {file_path}:")

@@ -1,6 +1,6 @@
 import unittest
 
-from resx_hooks.check_empty_values import find_empty_values
+from resx_hooks.resx_parser import find_empty_values, parse_resx_file
 from tests.helpers import TempResxFiles
 
 
@@ -47,10 +47,12 @@ class TestCheckEmptyValues(unittest.TestCase):
         empty_resx_path = self.temp_files.create_temp_resx(with_empty_values)
         full_resx_path = self.temp_files.create_temp_resx(no_empty_values)
 
-        empty_keys = find_empty_values(empty_resx_path)
+        parsed_empty = parse_resx_file(empty_resx_path)
+        empty_keys = find_empty_values(parsed_empty)
         self.assertEqual(set(empty_keys), {"Goodbye", "Error"})
 
-        empty_keys = find_empty_values(full_resx_path)
+        parsed_full = parse_resx_file(full_resx_path)
+        empty_keys = find_empty_values(parsed_full)
         self.assertEqual(empty_keys, [])
 
 

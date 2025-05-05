@@ -1,6 +1,6 @@
 import unittest
 
-from resx_hooks.resx_parser import find_missing_keys
+from resx_hooks.resx_parser import find_missing_keys, parse_resx_file
 from tests.helpers import TempResxFiles
 
 
@@ -40,10 +40,12 @@ class TestCheckKeysConsistency(unittest.TestCase):
         missing_goodbye_resx = self.temp_files.create_temp_resx(
             missing_key_resx_content)
 
-        missing_keys = find_missing_keys([
-            complete_resx,
-            missing_goodbye_resx
-        ])
+        parsed_data = {
+            complete_resx: parse_resx_file(complete_resx),
+            missing_goodbye_resx: parse_resx_file(missing_goodbye_resx)
+        }
+
+        missing_keys = find_missing_keys(parsed_data)
 
         self.assertIn(missing_goodbye_resx, missing_keys)
         self.assertEqual(
