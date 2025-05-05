@@ -24,7 +24,7 @@ Validates that string format placeholders (like `{0}` or `%s`) are consistent ac
 ```yaml
 repos:
 -   repo: https://github.com/DominiqueFuchs/resx-hooks
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
     -   id: check-keys-consistency
     -   id: check-empty-values
