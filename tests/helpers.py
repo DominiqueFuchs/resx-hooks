@@ -1,14 +1,15 @@
 import os
 import tempfile
+from typing import List
 
 
 class TempResxFiles:
     """Helper class to manage temporary resx files for testing."""
 
     def __init__(self):
-        self.temp_files = []
+        self.temp_files: List[str] = []
 
-    def create_temp_resx(self, content):
+    def create_temp_resx(self, content: str) -> str:
         """
         Create a temporary resx file with given content for testing.
 
