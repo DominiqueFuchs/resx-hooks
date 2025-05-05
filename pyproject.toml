@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "resx-hooks"
+version = "0.1.0"
+description = "Pre-commit hooks to validate resx localization files"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+dependencies = [
+    "lxml>=4.9.0",
+]
+
+[project.scripts]
+check-resx-keys = "resx_hooks.check_keys_consistency:main"
+check-resx-empties = "resx_hooks.check_empty_values:main"
+check-resx-placeholders = "resx_hooks.check_placeholders:main"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=4.0.0",
+    "flake8>=7.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/DominiqueFuchs/resx-hooks"
+"Bug Tracker" = "https://github.com/DominiqueFuchs/resx-hooks/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["resx_hooks"]

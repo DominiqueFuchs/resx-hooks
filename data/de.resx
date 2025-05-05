@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Welcome" xml:space="preserve">
+    <value>Willkommen</value>
+  </data>
+  <data name="Goodbye" xml:space="preserve">
+    <value>Auf Wiedersehen</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ein Fehler ist aufgetreten</value>
+  </data>
+</root>

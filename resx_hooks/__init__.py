@@ -1,0 +1,1 @@
+# resx_hooks package

@@ -1,0 +1,23 @@
+- id: check-keys-consistency
+  name: Check resx keys consistency
+  description: Ensures all resx files have the same keys
+  entry: check-resx-keys
+  language: python
+  types: [file]
+  files: \.resx$
+
+- id: check-empty-values
+  name: Check for empty values in resx files
+  description: Ensures no resx entries have empty or whitespace-only values
+  entry: check-resx-empties
+  language: python
+  types: [file]
+  files: \.resx$
+
+- id: check-placeholders
+  name: Check for consistent placeholders in resx files
+  description: Ensures format placeholders are consistent across translations
+  entry: check-resx-placeholders
+  language: python
+  types: [file]
+  files: \.resx$
