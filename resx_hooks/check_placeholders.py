@@ -27,30 +27,31 @@ def check_placeholder_consistency(
         Dictionary mapping file paths to dictionaries mapping keys to
         inconsistent placeholders.
     """
-    reference_file_path = next(iter(parsed_files.keys()))
-
-    key_placeholders: Dict[str, Dict[str, Set[str]]] = {}
-
-    for key in parsed_files[reference_file_path].keys():
-        key_placeholders[key] = {}
-        for file_path, data in parsed_files.items():
-            if key in data:
-                value = data[key]
-                placeholders = find_placeholders(value)
-                key_placeholders[key][file_path] = placeholders
+    all_keys: Set[str] = set()  # Union of all keys
+    for data in parsed_files.values():
+        all_keys.update(data.keys())
 
     inconsistencies: Dict[str, FileInconsistencies] = {}
-    for key, file_placeholders_map in key_placeholders.items():
-        reference_placeholders = next(iter(file_placeholders_map.values()))
-        for file_path, placeholders in file_placeholders_map.items():
-            if placeholders != reference_placeholders:
-                if file_path not in inconsistencies:
-                    inconsistencies[file_path] = {}
 
-                inconsistencies[file_path][key] = {
-                    'expected': list(reference_placeholders),
-                    'found': list(placeholders)
-                }
+    for key in all_keys:
+        reference_placeholders: Optional[Set[str]] = None
+        for file_path, data in parsed_files.items():
+            if key in data:
+                reference_placeholders = find_placeholders(data[key])
+                break
+
+        for file_path, data in parsed_files.items():
+            if key in data:
+                current_placeholders = find_placeholders(data[key])
+                if current_placeholders != reference_placeholders:
+                    if file_path not in inconsistencies:
+                        inconsistencies[file_path] = {}
+                    expected_list = sorted(list(reference_placeholders))
+                    found_list = sorted(list(current_placeholders))
+                    inconsistencies[file_path][key] = {
+                        'expected': expected_list,
+                        'found': found_list
+                    }
 
     return inconsistencies
 
@@ -62,10 +63,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if len(parsed_files) <= 1:
         return 0
 
-    if find_missing_keys(parsed_files):
+    missing_keys = find_missing_keys(parsed_files)
+    if missing_keys:
         print(
             "Warning: Files have inconsistent keys. "
-            "Placeholder consistency check may not be exhaustive.",
+            "Placeholder consistency check might report issues "
+            "actually related to missing keys.",
             file=sys.stderr
         )
 

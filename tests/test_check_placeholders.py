@@ -69,7 +69,7 @@ class TestCheckPlaceholders(unittest.TestCase):
         found_placeholders = {"1"}
         self.assertEqual(
             inconsistencies[fr_path]['Error']['expected'],
-            list(expected_placeholders))
+            sorted(list(expected_placeholders)))
         self.assertEqual(
             set(inconsistencies[fr_path]['Error']['found']),
             found_placeholders)
