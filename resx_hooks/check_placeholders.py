@@ -56,11 +56,16 @@ def check_placeholder_consistency(
     return inconsistencies
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    args = parse_cli_args(argv)
-    parsed_files = parse_resx_files(args)
+def main(
+    argv: Optional[Sequence[str]] = None,
+    parsed_files: Optional[Dict[str, ResxData]] = None
+) -> int:
+    """Checks for placeholder consistency across translations."""
+    if parsed_files is None:
+        args = parse_cli_args(argv)
+        parsed_files = parse_resx_files(args)
 
-    if len(parsed_files) <= 1:
+    if not parsed_files or len(parsed_files) <= 1:
         return 0
 
     missing_keys = find_missing_keys(parsed_files)

@@ -7,6 +7,10 @@ This package provides [pre-commit](https://pre-commit.com/) hooks to validate .r
 
 ## Hooks
 
+### check-all
+
+Includes all hooks listed below for convenience.
+
 ### check-keys-consistency
 
 Ensures all .resx files have the same set of resource keys. This helps prevent missing translations or orphaned keys across different language files.

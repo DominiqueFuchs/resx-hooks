@@ -1,3 +1,11 @@
+- id: check-all
+  name: Check all resx validations
+  description: Runs all resx checks (keys, empty values, placeholders)
+  entry: check-resx-all
+  language: python
+  types: [file]
+  files: \.resx$
+
 - id: check-keys-consistency
   name: Check resx keys consistency
   description: Ensures all resx files have the same keys

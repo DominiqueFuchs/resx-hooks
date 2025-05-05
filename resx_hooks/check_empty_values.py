@@ -1,13 +1,18 @@
 import sys
-from typing import Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 from .common import parse_cli_args, parse_resx_files
-from .resx_parser import find_empty_values
+from .resx_parser import ResxData, find_empty_values
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    args = parse_cli_args(argv)
-    parsed_files = parse_resx_files(args)
+def main(
+    argv: Optional[Sequence[str]] = None,
+    parsed_files: Optional[Dict[str, ResxData]] = None
+) -> int:
+    """Checks for empty or whitespace-only values in resx files."""
+    if parsed_files is None:
+        args = parse_cli_args(argv)
+        parsed_files = parse_resx_files(args)
 
     if not parsed_files:
         return 0
