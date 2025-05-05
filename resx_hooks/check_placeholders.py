@@ -34,7 +34,7 @@ def check_placeholder_consistency(
     inconsistencies: Dict[str, FileInconsistencies] = {}
 
     for key in all_keys:
-        reference_placeholders: Optional[Set[str]] = None
+        reference_placeholders: Set[str] = set()
         for file_path, data in parsed_files.items():
             if key in data:
                 reference_placeholders = find_placeholders(data[key])
