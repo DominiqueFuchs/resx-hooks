@@ -13,11 +13,9 @@ repos:
     -   id: trailing-whitespace
 
 -   repo: https://github.com/DominiqueFuchs/resx-hooks
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
-    -   id: check-keys-consistency
-    -   id: check-empty-values
-    -   id: check-placeholders
+    -   id: check-all
 
 ci:
   autofix_prs: false
